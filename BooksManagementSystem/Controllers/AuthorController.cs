@@ -66,9 +66,23 @@ namespace BooksManagementSystem.Controllers
         }
 
         // GET: AuthorController/Edit/5
-        public ActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            return View();
+            var author = await _context.Authors
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (id != author.Id)
+            {
+                return NotFound();
+            }
+
+            if (author == null)
+            {
+                return NotFound();
+            }
+
+            return View(author);
         }
 
         // POST: AuthorController/Edit/5
