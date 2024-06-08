@@ -8,14 +8,66 @@ namespace BooksManagementSystem.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<BooksManagementSystemUser> userManager;
-        private readonly SignInManager<BooksManagementSystemUser> signInManager;
+        private readonly UserManager<BooksManagementSystemUser> _userManager;
+        private readonly SignInManager<BooksManagementSystemUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
 
         public AccountController(UserManager<BooksManagementSystemUser> userManager,
-            SignInManager<BooksManagementSystemUser> signInManager)
+            SignInManager<BooksManagementSystemUser> signInManager,
+            RoleManager<IdentityRole> rolemMnager)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+            this._userManager = userManager;
+            this._signInManager = signInManager;
+            this._roleManager = rolemMnager;
+
+            //Task.Run(() => this.CreateRoles()).Wait();
+
+        }
+
+        private async Task CreateRoles()
+        {
+            //initializing custom roles 
+           
+            string[] roleNames = { "Admin", "User" };
+            IdentityResult roleResult;
+
+            foreach (var roleName in roleNames)
+            {
+                var roleExist = await _roleManager.RoleExistsAsync(roleName);
+                // ensure that the role does not exist
+                if (!roleExist)
+                {
+                    //create the roles and seed them to the database: 
+                    roleResult = await _roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+
+            // find the user with the admin email 
+            var user = await _userManager.FindByEmailAsync("admin.admin@gmail.com");
+
+            // check if the user exists
+            if (user == null)
+            {
+                //Here you could create the super admin who will maintain the web app
+                var poweruser = new BooksManagementSystemUser
+                {
+                    UserName = "Admin",
+                    Email = "admin@email.com",
+                };
+                string adminPassword = "p@$$w0rd";
+
+                var createPowerUser = await _userManager.CreateAsync(poweruser, adminPassword);
+                if (createPowerUser.Succeeded)
+                {
+                    //here we tie the new user to the role
+                    await _userManager.AddToRoleAsync(poweruser, "Admin");
+                }
+            }
+            else
+            {
+                await _userManager.AddToRoleAsync(user, "Admin");
+            }
         }
 
 
@@ -24,9 +76,6 @@ namespace BooksManagementSystem.Controllers
         {
             return View();
         }
-
-
-
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterViewModel model)
@@ -44,13 +93,13 @@ namespace BooksManagementSystem.Controllers
                 };
 
                 // Store user data in AspNetUsers database table
-                var result = await userManager.CreateAsync(user, model.Password);
+                var result = await _userManager.CreateAsync(user, model.Password);
 
                 // If user is successfully created, sign-in the user using
                 // SignInManager and redirect to index action of HomeController
                 if (result.Succeeded)
                 {
-                    await signInManager.SignInAsync(user, isPersistent: false);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("index", "home");
                 }
 
@@ -69,11 +118,9 @@ namespace BooksManagementSystem.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
+            await _signInManager.SignOutAsync();
             return RedirectToAction("index", "home");
         }
-
-
 
         [HttpGet]
         public IActionResult Login()
@@ -87,7 +134,7 @@ namespace BooksManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await signInManager.PasswordSignInAsync(model.Email,
+                var result = await _signInManager.PasswordSignInAsync(model.Email,
                     model.Password, model.RememberMe, false);
 
                 if (result.Succeeded)

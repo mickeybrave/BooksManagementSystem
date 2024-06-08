@@ -30,8 +30,9 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+
                         @{
-                           
+
                             @if (signInManager.IsSignedIn(User))
                             {
                                 var user = await signInManager.UserManager.GetUserAsync(User);
@@ -46,6 +47,13 @@
                                     </div>
 
                                 </li>
+                                if (User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Author" asp-action="Index">Authors</a>
+                                    </li>
+                                }
+
                             }
 
                             else
