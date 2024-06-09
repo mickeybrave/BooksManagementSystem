@@ -5,6 +5,7 @@ using BooksManagementSystem.Areas.Identity.Data;
 using BooksManagementSystem.DAL.Authors;
 using BooksManagementSystem.DAL.Accounts;
 using BooksManagementSystem.DAL.Books;
+using BooksManagementSystem.DAL.Borrowing;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("BooksManagementSystemContextConnection") 
@@ -34,6 +35,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddScoped<IAuthorsDataRepository, AuthorsDataRepository>();
 builder.Services.AddScoped<IAccountsRepository, AccountsRepository>();
 builder.Services.AddScoped<IBooksDataRepository, BooksDataRepository>();
+builder.Services.AddScoped<IBorrowingDataRepository, BorrowingDataRepository>();
 
 
 builder.Services.AddControllers(option =>

@@ -33,9 +33,9 @@ namespace BooksManagementSystem.DAL.Authors
             await _context.SaveChangesAsync();
         }
 
-        public DbSet<AuthorViewModel> GetAll()
+        public IOrderedQueryable<AuthorViewModel> GetAll()
         {
-            return _context.Authors;
+            return _context.Authors.OrderBy(x => x.AuthorSecondname);
         }
 
         public async Task<AuthorViewModel> GetDetails(int id)

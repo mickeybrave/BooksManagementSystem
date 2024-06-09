@@ -13,5 +13,9 @@ namespace BooksManagementSystem.DAL.Accounts
 
         Task<SignInResult> PasswordSignInAsync(string userEmail, string password,
             bool isPersistent, bool lockoutOnFailure = false);
+
+        Task<List<BooksManagementSystemUser>> GetUsersAsync();
+
+        Task<BooksManagementSystemUser> GetUsersAsync(string userId);
     }
 }

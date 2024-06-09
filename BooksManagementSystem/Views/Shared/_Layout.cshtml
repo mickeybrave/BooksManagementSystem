@@ -45,8 +45,8 @@
                                             </button>
                                         </form>
                                     </div>
-
                                 </li>
+
                                 if (User.IsInRole("Admin"))
                                 {
                                     <li class="nav-item">
@@ -57,6 +57,14 @@
                                         <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Index">Books</a>
                                     </li>
                                 }
+                                if (User.IsInRole("User") || User.IsInRole("Admin"))
+                                {
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" asp-area="" asp-controller="Borrowing" asp-action="Index">Borrowing</a>
+                                    </li>
+                                }
+
+                               
 
                             }
 

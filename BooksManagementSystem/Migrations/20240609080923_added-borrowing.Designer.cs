@@ -4,6 +4,7 @@ using BooksManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BooksManagementSystem.Migrations
 {
     [DbContext(typeof(BooksManagementSystemContext))]
-    partial class BooksManagementSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20240609080923_added-borrowing")]
+    partial class addedborrowing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,13 +111,9 @@ namespace BooksManagementSystem.Migrations
 
                     b.Property<string>("AuthorSecondname")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuthorSecondname");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("AuthorSecondname"), false);
 
                     b.ToTable("Authors");
                 });
@@ -148,15 +146,11 @@ namespace BooksManagementSystem.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
-
-                    b.HasIndex("Title");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("Title"), false);
 
                     b.ToTable("Books");
                 });

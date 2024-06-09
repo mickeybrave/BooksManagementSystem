@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using BooksManagementSystem.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace BooksManagementSystem.Areas.Identity.Data;
@@ -17,5 +18,7 @@ public class BooksManagementSystemUser : IdentityUser
     [PersonalData]
     [Column(TypeName = "nvarchar(100)")]
     public string LastName { get; set; }
+
+    public virtual ICollection<BorrowingViewModel> Borrowings { get; set; }
 }
 

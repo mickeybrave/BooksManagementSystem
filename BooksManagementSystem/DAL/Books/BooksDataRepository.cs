@@ -32,9 +32,9 @@ namespace BooksManagementSystem.DAL.Books
             await _context.SaveChangesAsync();
         }
 
-        public DbSet<BookViewModel> GetAll()
+        public IOrderedQueryable<BookViewModel> GetAll()
         {
-            return _context.Books;
+            return _context.Books.OrderBy(x => x.Title);
         }
 
         public async Task<BookViewModel> GetDetails(int id)

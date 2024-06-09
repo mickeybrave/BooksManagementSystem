@@ -12,6 +12,7 @@ namespace BooksManagementSystem.Models
         [Required]
         [Display(Name = "Author first name")]
         public string AuthorFirstname { get; set; }
+
         [Required]
         [Display(Name = "Author second name")]
         public string AuthorSecondname { get; set; }

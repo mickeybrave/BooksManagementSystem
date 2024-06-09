@@ -8,7 +8,7 @@ namespace BooksManagementSystem.DAL.Authors
         Task Create(AuthorViewModel author);
         Task<AuthorViewModel> GetDetails(int id);
 
-        DbSet<AuthorViewModel> GetAll();
+        IOrderedQueryable<AuthorViewModel> GetAll();
 
         Task<AuthorViewModel?> GetNotTracking(int id);
 

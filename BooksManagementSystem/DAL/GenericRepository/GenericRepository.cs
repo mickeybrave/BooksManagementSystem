@@ -4,6 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BooksManagementSystem.DAL.GenericRepository
 {
+    public interface IEntity
+    {
+        int Id { get; set; }
+    }
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class, IEntity
     {
         private readonly DbContext _context;

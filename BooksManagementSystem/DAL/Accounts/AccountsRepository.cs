@@ -1,5 +1,6 @@
 ﻿using BooksManagementSystem.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BooksManagementSystem.DAL.Accounts
 {
@@ -74,6 +75,17 @@ namespace BooksManagementSystem.DAL.Accounts
             }
             return await _userManager.AddToRoleAsync(user, "User");
         }
+
+        public async Task<List<BooksManagementSystemUser>> GetUsersAsync()
+        {
+            return await _userManager.Users.ToListAsync();
+        }
+
+        public async Task<BooksManagementSystemUser> GetUsersAsync(string userId)
+        {
+            return await _userManager.FindByIdAsync(userId);
+        }
+
 
         public async Task<SignInResult> PasswordSignInAsync(string userEmail, string password, bool isPersistent, bool lockoutOnFailure = false)
         {

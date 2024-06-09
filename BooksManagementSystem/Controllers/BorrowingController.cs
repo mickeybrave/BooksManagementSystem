@@ -1,5 +1,6 @@
-﻿using BooksManagementSystem.DAL.Authors;
+﻿using BooksManagementSystem.DAL.Accounts;
 using BooksManagementSystem.DAL.Books;
+using BooksManagementSystem.DAL.Borrowing;
 using BooksManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,72 +9,91 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BooksManagementSystem.Controllers
 {
-    public class BookController : Controller
+    public class BorrowingController : Controller
     {
+        private readonly IBorrowingDataRepository _borrowingDataRepository;
         private readonly IBooksDataRepository _booksDataRepository;
-        private readonly IAuthorsDataRepository _authorsDataRepository;
+        private readonly IAccountsRepository _accountsRepository;
 
-        public BookController(IBooksDataRepository booksDataRepository, IAuthorsDataRepository authorsDataRepository)
+        public BorrowingController(IBorrowingDataRepository borrowingDataRepository,
+            IBooksDataRepository booksDataRepository,
+            IAccountsRepository accountsRepository)
         {
-            this._booksDataRepository = booksDataRepository;
-            this._authorsDataRepository = authorsDataRepository;
+            _borrowingDataRepository = borrowingDataRepository;
+            _booksDataRepository = booksDataRepository;
+            _accountsRepository = accountsRepository;
         }
 
         //   GET: BookController
         [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
-            return View(_booksDataRepository.GetAll());
+            return View(_borrowingDataRepository.GetAll());
         }
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int id)
         {
-            var book = await _booksDataRepository.GetDetails(id);
-            if (book == null)
+            var borrowing = await _borrowingDataRepository.GetDetails(id);
+            if (borrowing == null)
             {
                 return NotFound();
             }
-            await InitAuthor(book);
-
-            return View(book);
+            await InitBook(borrowing);
+            await InitUser(borrowing);
+            return View(borrowing);
         }
 
-        private async Task InitAuthor(BookViewModel book)
+        private void InitiateBooks()
         {
-            var author = await _authorsDataRepository.GetDetails(book.AuthorId);
-            ViewData["Author"] = author.AuthorFirstname + " " + author.AuthorSecondname;
-        }
-
-        // GET: BookController/Create
-        [Authorize(Roles = "Admin")]
-        public ActionResult Create()
-        {
-            InitiateAuthors();
-            return View();
-        }
-
-        private void InitiateAuthors()
-        {
-            ViewData["Authors"] = _authorsDataRepository.GetAll().Select(s => new SelectListItem
+            ViewData["Books"] = _booksDataRepository.GetAll().Select(s => new SelectListItem
             {
-                Text = s.AuthorFirstname + " " + s.AuthorSecondname,
+                Text = s.Title,
                 Value = s.Id.ToString()
             });
         }
 
-        // POST: BookController/Create
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create()
+        {
+            await InitiateUsers();
+            InitiateBooks();
+            return View();
+        }
+
+        private async Task InitiateUsers()
+        {
+            var allUsers = await _accountsRepository.GetUsersAsync();
+            ViewData["Users"] = allUsers.Select(s => new SelectListItem
+            {
+                Text = s.Firstname + " " + s.LastName,
+                Value = s.Id.ToString()
+            });
+        }
+
+        private async Task InitBook(BorrowingViewModel borrowing)
+        {
+            var book = await _booksDataRepository.GetDetails(borrowing.BookId);
+            ViewData["Book"] = book.Title;
+        }
+
+        private async Task InitUser(BorrowingViewModel borrowing)
+        {
+            var user = await _accountsRepository.GetUsersAsync(borrowing.UserId);
+            ViewData["User"] = user.Firstname + " " + user.LastName;
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Title,AuthorId,ISBN,Category,Description,IsAvailable")]
-                    BookViewModel book)
+        public async Task<IActionResult> Create([Bind("Id,BookId,UserId,BorrowedDate,ReturnedDate")]
+                    BorrowingViewModel borrowing)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    await _booksDataRepository.Create(book);
+                    await _borrowingDataRepository.Create(borrowing);
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -83,14 +103,13 @@ namespace BooksManagementSystem.Controllers
                 ModelState.AddModelError("", "Unable to save changes. " +
                     "posible reason is " + ex.Message);
             }
-            return View(book);
+            return View(borrowing);
         }
 
-        // GET: BookController/Edit/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
-            var book = await _booksDataRepository.GetNotTracking(id);
+            var book = await _borrowingDataRepository.GetNotTracking(id);
 
             if (book == null)
             {
@@ -102,19 +121,19 @@ namespace BooksManagementSystem.Controllers
                 return NotFound();
             }
 
-           
-            InitiateAuthors();
+
+            await InitiateUsers();
+            InitiateBooks();
             return View(book);
         }
 
-        // POST: BookController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,AuthorId,ISBN,Category,Description,IsAvailable")]
-                    BookViewModel book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,BookId,UserId,BorrowedDate,ReturnedDate")]
+                    BorrowingViewModel borrowing)
         {
-            if (id != book.Id)
+            if (id != borrowing.Id)
             {
                 return NotFound();
             }
@@ -123,7 +142,7 @@ namespace BooksManagementSystem.Controllers
             {
                 try
                 {
-                    await _booksDataRepository.Edit(book);
+                    await _borrowingDataRepository.Edit(borrowing);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException ex)
@@ -133,10 +152,9 @@ namespace BooksManagementSystem.Controllers
                         "posible reason is " + ex.Message);
                 }
             }
-            return View(book);
+            return View(borrowing);
         }
 
-        // GET: BookController/Delete/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id, bool? saveChangesError = false)
         {
@@ -145,8 +163,8 @@ namespace BooksManagementSystem.Controllers
                 return NotFound();
             }
 
-            var book = await _booksDataRepository.GetNotTracking(id);
-            if (book == null)
+            var borrowing = await _borrowingDataRepository.GetNotTracking(id);
+            if (borrowing == null)
             {
                 return NotFound();
             }
@@ -157,11 +175,11 @@ namespace BooksManagementSystem.Controllers
                     "Delete failed. Try again, and if the problem persists " +
                     "see your system administrator.";
             }
-            await InitAuthor(book);
-            return View(book);
+            await InitBook(borrowing);
+            await InitUser(borrowing);
+            return View(borrowing);
         }
 
-        // POST: BookController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -169,7 +187,7 @@ namespace BooksManagementSystem.Controllers
         {
             try
             {
-                await _booksDataRepository.Delete(id);
+                await _borrowingDataRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException /* ex */)
