@@ -1,7 +1,6 @@
-﻿using BooksManagementSystem.Data;
+﻿using BooksManagementSystem.DAL.Authors;
 using BooksManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,25 +8,25 @@ namespace BooksManagementSystem.Controllers
 {
     public class AuthorController : Controller
     {
-        private readonly BooksManagementSystemContext _context;
+        private readonly IAuthorsDataRepository _repository;
 
-        public AuthorController(BooksManagementSystemContext context)
+        public AuthorController(IAuthorsDataRepository repository)
         {
-            _context = context;
+            this._repository = repository;
         }
 
         // GET: AuthorController
         [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
-            return View(_context.Authors);
+            return View(_repository.GetAll());
         }
 
         // GET: AuthorController/Details/5
         [Authorize(Roles = "Admin")]
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var author = _context.Authors.Find(id);
+            var author = await _repository.GetDetails(id);
             if (author == null)
             {
                 return NotFound();
@@ -51,8 +50,7 @@ namespace BooksManagementSystem.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    _context.Add(author);
-                    await _context.SaveChangesAsync();
+                    await _repository.Create(author);
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -68,9 +66,7 @@ namespace BooksManagementSystem.Controllers
         // GET: AuthorController/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            var author = await _context.Authors
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var author = await _repository.GetNotTracking(id);
 
             if (id != author.Id)
             {
@@ -100,8 +96,7 @@ namespace BooksManagementSystem.Controllers
             {
                 try
                 {
-                    _context.Update(author);
-                    await _context.SaveChangesAsync();
+                    await _repository.Edit(author);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException ex)
@@ -122,9 +117,7 @@ namespace BooksManagementSystem.Controllers
                 return NotFound();
             }
 
-            var author = await _context.Authors
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var author = await _repository.GetNotTracking(id.GetValueOrDefault());
             if (author == null)
             {
                 return NotFound();
@@ -147,9 +140,7 @@ namespace BooksManagementSystem.Controllers
         {
             try
             {
-                var authorToDelete = new AuthorViewModel() { Id = id };
-                _context.Entry(authorToDelete).State = EntityState.Deleted;
-                await _context.SaveChangesAsync();
+                await _repository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException /* ex */)
