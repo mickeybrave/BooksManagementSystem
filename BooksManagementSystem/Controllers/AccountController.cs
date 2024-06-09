@@ -9,22 +9,12 @@ namespace BooksManagementSystem.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly UserManager<BooksManagementSystemUser> _userManager;
-        private readonly SignInManager<BooksManagementSystemUser> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+  
         private readonly IAccountsRepository _accountsRepository;
 
-        public AccountController(UserManager<BooksManagementSystemUser> userManager,
-            SignInManager<BooksManagementSystemUser> signInManager,
-            RoleManager<IdentityRole> rolemMnager, IAccountsRepository accountsRepository)
+        public AccountController(IAccountsRepository accountsRepository)
         {
-            this._userManager = userManager;
-            this._signInManager = signInManager;
-            this._roleManager = rolemMnager;
             this._accountsRepository = accountsRepository;
-
-
-
         }
 
 

@@ -1,16 +1,15 @@
 ﻿using BooksManagementSystem.Data;
+using BooksManagementSystem.Migrations;
 using BooksManagementSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BooksManagementSystem.DAL.Authors
 {
-
-
-    public class AuthorstDataRepository : IAuthorsDataRepository
+    public class AuthorsDataRepository : IAuthorsDataRepository
     {
         private readonly BooksManagementSystemContext _context;
 
-        public AuthorstDataRepository(BooksManagementSystemContext context)
+        public AuthorsDataRepository(BooksManagementSystemContext context)
         {
             _context = context;
         }

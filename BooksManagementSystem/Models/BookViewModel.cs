@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BooksManagementSystem.Models
@@ -9,12 +10,16 @@ namespace BooksManagementSystem.Models
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         [Required]
         public string Title { get; set; }
-        [Required]
 
+        [Required]
         [ForeignKey("AuthorViewModel"), DatabaseGenerated(DatabaseGeneratedOption.None)]
+        [Display(Name = "Author")]
         public int AuthorId { get; set; }
+
+        [HiddenInput(DisplayValue = false)]
         public AuthorViewModel AuthorViewModel { get; set; }
 
         [Required]

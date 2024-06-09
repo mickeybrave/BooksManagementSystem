@@ -1,58 +1,73 @@
 ﻿using BooksManagementSystem.DAL.Authors;
+using BooksManagementSystem.DAL.Books;
 using BooksManagementSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Core.Types;
 
 namespace BooksManagementSystem.Controllers
 {
-    public class AuthorController : Controller
+    public class BookController : Controller
     {
-        private readonly IAuthorsDataRepository _repository;
+        private readonly IBooksDataRepository _booksDataRepository;
+        private readonly IAuthorsDataRepository _authorsDataRepository;
 
-        public AuthorController(IAuthorsDataRepository repository)
+        public BookController(IBooksDataRepository booksDataRepository, IAuthorsDataRepository authorsDataRepository)
         {
-            this._repository = repository;
+            this._booksDataRepository = booksDataRepository;
+            this._authorsDataRepository = authorsDataRepository;
         }
 
-        // GET: AuthorController
+        //   GET: BookController
         [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
-            return View(_repository.GetAll());
+            return View(_booksDataRepository.GetAll());
         }
 
         // GET: AuthorController/Details/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int id)
         {
-            var author = await _repository.GetDetails(id);
-            if (author == null)
+            var book = await _booksDataRepository.GetDetails(id);
+            if (book == null)
             {
                 return NotFound();
             }
-            return View(author);
+            return View(book);
         }
 
-        // GET: AuthorController/Create
+        // GET: BookController/Create
         [Authorize(Roles = "Admin")]
         public ActionResult Create()
         {
+            InitiateAuthors();
             return View();
         }
 
-        // POST: AuthorController/Create
+        private void InitiateAuthors()
+        {
+            ViewData["Authors"] = _authorsDataRepository.GetAll().Select(s => new SelectListItem
+            {
+                Text = s.AuthorFirstname + " " + s.AuthorSecondname,
+                Value = s.Id.ToString()
+            });
+        }
+
+        // POST: BookController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,AuthorFirstname,AuthorSecondname")]
-                    AuthorViewModel author)
+        public async Task<IActionResult> Create([Bind("Id,Title,AuthorId,ISBN,Category,Description,IsAvailable")]
+                    BookViewModel book)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    await _repository.Create(author);
+                    await _booksDataRepository.Create(book);
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -62,35 +77,38 @@ namespace BooksManagementSystem.Controllers
                 ModelState.AddModelError("", "Unable to save changes. " +
                     "posible reason is " + ex.Message);
             }
-            return View(author);
+            return View(book);
         }
 
-        // GET: AuthorController/Edit/5
+        // GET: BookController/Edit/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
-            var author = await _repository.GetNotTracking(id);
+            var book = await _booksDataRepository.GetNotTracking(id);
 
-            if (author == null)
+            if (book == null)
+            {
+                return NotFound();
+
+            }
+            if (id != book.Id)
             {
                 return NotFound();
             }
 
-            if (id != author.Id)
-            {
-                return NotFound();
-            }
-            return View(author);
+           
+            InitiateAuthors();
+            return View(book);
         }
 
-        // POST: AuthorController/Edit/5
+        // POST: BookController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,AuthorFirstname,AuthorSecondname")]
-                    AuthorViewModel author)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,AuthorId,ISBN,Category,Description,IsAvailable")]
+                    BookViewModel book)
         {
-            if (id != author.Id)
+            if (id != book.Id)
             {
                 return NotFound();
             }
@@ -99,7 +117,7 @@ namespace BooksManagementSystem.Controllers
             {
                 try
                 {
-                    await _repository.Edit(author);
+                    await _booksDataRepository.Edit(book);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateException ex)
@@ -109,20 +127,20 @@ namespace BooksManagementSystem.Controllers
                         "posible reason is " + ex.Message);
                 }
             }
-            return View(author);
+            return View(book);
         }
 
-        // GET: AuthorController/Delete/5
+        // GET: BookController/Delete/5
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Delete(int? id, bool? saveChangesError = false)
+        public async Task<IActionResult> Delete(int id, bool? saveChangesError = false)
         {
-            if (id == null)
+            if (id <= 0)
             {
                 return NotFound();
             }
 
-            var author = await _repository.GetNotTracking(id.GetValueOrDefault());
-            if (author == null)
+            var book = await _booksDataRepository.GetNotTracking(id);
+            if (book == null)
             {
                 return NotFound();
             }
@@ -134,10 +152,10 @@ namespace BooksManagementSystem.Controllers
                     "see your system administrator.";
             }
 
-            return View(author);
+            return View(book);
         }
 
-        // POST: AuthorController/Delete/5
+        // POST: BookController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -145,7 +163,7 @@ namespace BooksManagementSystem.Controllers
         {
             try
             {
-                await _repository.Delete(id);
+                await _booksDataRepository.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateException /* ex */)

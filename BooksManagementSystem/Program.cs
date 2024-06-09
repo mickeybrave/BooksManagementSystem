@@ -4,6 +4,8 @@ using BooksManagementSystem.Data;
 using BooksManagementSystem.Areas.Identity.Data;
 using BooksManagementSystem.DAL.Authors;
 using BooksManagementSystem.DAL.Accounts;
+using BooksManagementSystem.DAL.Books;
+
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("BooksManagementSystemContextConnection") 
     ?? throw new InvalidOperationException("Connection string 'BooksManagementSystemContextConnection' not found.");
@@ -29,8 +31,9 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.SignIn.RequireConfirmedAccount = false;//this configuration does not work and ignored by ASP.NET. left for reference
 });
 
-builder.Services.AddScoped<IAuthorsDataRepository, AuthorstDataRepository>();
+builder.Services.AddScoped<IAuthorsDataRepository, AuthorsDataRepository>();
 builder.Services.AddScoped<IAccountsRepository, AccountsRepository>();
+builder.Services.AddScoped<IBooksDataRepository, BooksDataRepository>();
 
 
 builder.Services.AddControllers(option =>
