@@ -23,7 +23,7 @@ namespace BooksManagementSystem.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
-            return View(_booksDataRepository.GetAll());
+            return View(_booksDataRepository.GetAllBookingFullInfo());
         }
 
         [Authorize(Roles = "Admin")]

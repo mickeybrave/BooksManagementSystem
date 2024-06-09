@@ -15,7 +15,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Title)
             </th>
-
+            <th>
+                @Html.DisplayNameFor(model => model.AuthorInformation)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.ISBN)
             </th>
@@ -37,6 +39,9 @@
             <tr>
                 <td>
                     @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AuthorInformation)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ISBN)

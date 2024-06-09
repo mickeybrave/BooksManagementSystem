@@ -48,5 +48,25 @@ namespace BooksManagementSystem.DAL.Books
                  .AsNoTracking()// EF extension to update existing user instead of inserting a new one
                  .FirstOrDefaultAsync(m => m.Id == id);
         }
+
+        public IQueryable<BookViewModel> GetAllBookingFullInfo()
+        {
+
+            var borrowings = (from book in _context.Books
+                              join author in _context.Authors on book.AuthorId equals author.Id
+                              select new BookViewModel
+                              {
+                                  Title = book.Title,
+                                  AuthorViewModel = author,
+                                  AuthorId = book.AuthorId,
+                                  Category = book.Category,
+                                  Description = book.Description,
+                                  IsAvailable = book.IsAvailable,
+                                  Id = book.Id,
+                                  ISBN = book.ISBN
+                              });
+
+            return borrowings;
+        }
     }
 }

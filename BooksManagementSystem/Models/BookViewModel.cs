@@ -32,5 +32,8 @@ namespace BooksManagementSystem.Models
         [Display(Name = "Is available")]
         public bool IsAvailable { get; set; }
 
+        [Display(Name = "Author information")]
+        public string AuthorInformation { get { return AuthorViewModel?.AuthorSecondname + " " + AuthorViewModel?.AuthorFirstname; } }
+
     }
 }

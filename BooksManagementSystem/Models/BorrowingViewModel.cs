@@ -35,8 +35,10 @@ namespace BooksManagementSystem.Models
 
         public DateTime? ReturnedDate { get; set; }
 
+        [Display(Name = "Book information")]
         public string BookInfo { get { return BookViewModel?.Title + " " + BookViewModel?.AuthorViewModel?.AuthorFirstname + " " + BookViewModel?.AuthorViewModel?.AuthorSecondname; } }
 
+        [Display(Name = "User information")]
         public string UserInfo { get { return BooksManagementSystemUser?.LastName + " " + BooksManagementSystemUser?.Firstname; } }
 
 
