@@ -28,7 +28,8 @@ namespace BooksManagementSystem.Controllers
         [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
-            return View(_borrowingDataRepository.GetAll());
+            var fullInfo = _borrowingDataRepository.GetAllBorrowingFullInfo();
+            return View(fullInfo);
         }
 
         [Authorize(Roles = "Admin")]

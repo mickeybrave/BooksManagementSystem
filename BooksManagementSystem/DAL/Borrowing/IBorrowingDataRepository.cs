@@ -15,5 +15,7 @@ namespace BooksManagementSystem.DAL.Borrowing
         Task Edit(BorrowingViewModel author);
 
         Task Delete(int id);
+
+        IQueryable<BorrowingViewModel> GetAllBorrowingFullInfo();
     }
 }

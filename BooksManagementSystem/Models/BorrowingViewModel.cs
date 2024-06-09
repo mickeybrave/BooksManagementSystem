@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 
 namespace BooksManagementSystem.Models
 {
@@ -33,6 +34,11 @@ namespace BooksManagementSystem.Models
         public DateTime BorrowedDate { get; set; }
 
         public DateTime? ReturnedDate { get; set; }
+
+        public string BookInfo { get { return BookViewModel?.Title + " " + BookViewModel?.AuthorViewModel?.AuthorFirstname + " " + BookViewModel?.AuthorViewModel?.AuthorSecondname; } }
+
+        public string UserInfo { get { return BooksManagementSystemUser?.LastName + " " + BooksManagementSystemUser?.Firstname; } }
+
 
 
 
