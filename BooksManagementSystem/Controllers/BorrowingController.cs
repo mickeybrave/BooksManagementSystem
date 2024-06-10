@@ -105,6 +105,10 @@ namespace BooksManagementSystem.Controllers
                     var currentUser = await _accountsRepository.GetUsersByEmailAsync(User.Identity.Name);
                     borrowing.UserId = currentUser.Id;
 
+                    borrowing.NotificationMessage = "Book borrowed successfully!";
+                    borrowing.NotificationType = MessageNotificationType.Borrowed;
+                    TempData["SuccessMessage"] = "Book borrowed successfully!";
+
                     await _borrowingDataRepository.Create(borrowing);
                     return RedirectToAction(nameof(Index));
                 }
@@ -114,6 +118,9 @@ namespace BooksManagementSystem.Controllers
                 //Log the error (uncomment ex variable name and write a log.
                 ModelState.AddModelError("", "Unable to save changes. " +
                     "posible reason is " + ex.Message);
+
+                borrowing.NotificationMessage = ex.Message;
+                borrowing.NotificationType = MessageNotificationType.Failure;
             }
             await InitiateUsers();
             await InitiateBooks(borrowing.BookId);
@@ -158,6 +165,11 @@ namespace BooksManagementSystem.Controllers
             {
                 try
                 {
+                    borrowing.NotificationMessage = "Book returned successfully!";
+                    borrowing.NotificationType = borrowing.ReturnedDate == null ? MessageNotificationType.Borrowed : MessageNotificationType.Returned;
+
+                    TempData["SuccessMessage"] = $"Book {borrowing.NotificationType} successfully!";
+
                     await _borrowingDataRepository.Edit(borrowing);
                     return RedirectToAction(nameof(Index));
                 }
@@ -166,6 +178,8 @@ namespace BooksManagementSystem.Controllers
                     //Log the error (uncomment ex variable name and write a log.
                     ModelState.AddModelError("", "Unable to save changes. " +
                         "posible reason is " + ex.Message);
+                    borrowing.NotificationMessage = ex.Message;
+                    borrowing.NotificationType = MessageNotificationType.Failure;
                 }
             }
             await InitBook(borrowing);
@@ -216,5 +230,7 @@ namespace BooksManagementSystem.Controllers
                 return RedirectToAction(nameof(Delete), new { id = id, saveChangesError = true });
             }
         }
+
+
     }
 }

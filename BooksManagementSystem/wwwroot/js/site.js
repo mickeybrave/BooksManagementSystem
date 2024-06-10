@@ -1,4 +1,19 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿function hideNotification() {
+    var notification = document.getElementById("notification-message");
+    if (notification) { // Check if element exists
+        notification.style.display = "none";
+    } else {
+        console.warn("Notification element not found!"); // Handle missing element (optional)
+    }
+}
 
-// Write your JavaScript code.
+document.addEventListener("DOMContentLoaded", function () {
+    var notification = document.getElementById("notification-message");
+    if (notification) { // Check if element exists
+        setTimeout(function () {
+            notification.style.display = "none";
+        }, 5000); // Hide after 5 seconds (adjust as needed)
+    } else {
+        console.warn("Notification element not found!"); // Handle missing element (optional)
+    }
+});

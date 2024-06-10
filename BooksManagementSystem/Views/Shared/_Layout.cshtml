@@ -11,6 +11,7 @@
     <title>@ViewData["Title"] - Books borrowing system</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/js/site.js" asp-append-version="true" />
     <link rel="stylesheet" href="~/BooksManagementSystem.styles.css" asp-append-version="true" />
 </head>
 <body>
@@ -75,6 +76,12 @@
                             }
                         }
                     </ul>
+                </div>
+                <div>
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <button id="notification-message" onclick="hideNotification()" class="btn btn-success">@TempData["SuccessMessage"]</button>
+                    }
                 </div>
             </div>
         </nav>

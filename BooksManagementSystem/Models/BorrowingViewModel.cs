@@ -3,10 +3,15 @@ using BooksManagementSystem.Infra;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
 
 namespace BooksManagementSystem.Models
 {
+    public enum MessageNotificationType
+    {
+        Borrowed,
+        Returned,
+        Failure
+    }
     public class BorrowingViewModel
     {
         [Key]
@@ -44,6 +49,9 @@ namespace BooksManagementSystem.Models
 
         [Display(Name = "User information")]
         public string UserInfo { get { return BooksManagementSystemUser?.LastName + " " + BooksManagementSystemUser?.Firstname; } }
+
+        public string NotificationMessage { get; set; }
+        public MessageNotificationType NotificationType { get; set; }
 
 
     }
