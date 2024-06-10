@@ -21,9 +21,14 @@ namespace BooksManagementSystem.Controllers
 
         //   GET: BookController
         [Authorize(Roles = "Admin,User")]
-        public ActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View(_booksDataRepository.GetAllBooksFullInfo());
+            var allBooksFullInfo = await _booksDataRepository.GetAllBooksFullInfo();
+            if (allBooksFullInfo == null)
+            {
+                return NotFound();
+            }
+            return View(allBooksFullInfo);
         }
 
         [Authorize(Roles = "Admin,User")]
