@@ -24,7 +24,7 @@ namespace BooksManagementSystem.Controllers
         public async Task<IActionResult> Index()
         {
             var allBooksFullInfo = await _booksDataRepository.GetAllBooksFullInfo();
-            if (allBooksFullInfo == null)
+            if (allBooksFullInfo == null || !allBooksFullInfo.Any())
             {
                 return NotFound();
             }
