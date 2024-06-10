@@ -7,7 +7,10 @@
 <h1>All borrowings</h1>
 
 <p>
-    <a asp-action="Create">Borrow Book</a>
+    @if (User.IsInRole("Admin") || User.IsInRole("User"))
+    {
+        <a asp-action="Create">Borrow Book</a>
+    }
 </p>
 <table class="table">
     <thead>
@@ -44,9 +47,12 @@
                     @Html.DisplayFor(modelItem => item.ReturnedDate)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit or return</a>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    }
                 </td>
             </tr>
         }

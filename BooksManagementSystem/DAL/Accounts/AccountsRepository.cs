@@ -86,6 +86,10 @@ namespace BooksManagementSystem.DAL.Accounts
             return await _userManager.FindByIdAsync(userId);
         }
 
+        public async Task<BooksManagementSystemUser> GetUsersByEmailAsync(string userEmail)
+        {
+            return await _userManager.FindByEmailAsync(userEmail);
+        }
 
         public async Task<SignInResult> PasswordSignInAsync(string userEmail, string password, bool isPersistent, bool lockoutOnFailure = false)
         {

@@ -17,5 +17,7 @@ namespace BooksManagementSystem.DAL.Accounts
         Task<List<BooksManagementSystemUser>> GetUsersAsync();
 
         Task<BooksManagementSystemUser> GetUsersAsync(string userId);
+
+        Task<BooksManagementSystemUser> GetUsersByEmailAsync(string userEmail);
     }
 }

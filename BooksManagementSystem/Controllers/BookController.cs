@@ -20,13 +20,13 @@ namespace BooksManagementSystem.Controllers
         }
 
         //   GET: BookController
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public ActionResult Index()
         {
-            return View(_booksDataRepository.GetAllBookingFullInfo());
+            return View(_booksDataRepository.GetAllBooksFullInfo());
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Details(int id)
         {
             var book = await _booksDataRepository.GetDetails(id);
@@ -83,6 +83,7 @@ namespace BooksManagementSystem.Controllers
                 ModelState.AddModelError("", "Unable to save changes. " +
                     "posible reason is " + ex.Message);
             }
+            InitiateAuthors();
             return View(book);
         }
 
@@ -133,6 +134,7 @@ namespace BooksManagementSystem.Controllers
                         "posible reason is " + ex.Message);
                 }
             }
+            InitiateAuthors();
             return View(book);
         }
 

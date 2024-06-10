@@ -16,20 +16,46 @@ namespace BooksManagementSystem.DAL.Borrowing
         public async Task Create(BorrowingViewModel borrowing)
         {
             _context.Add(borrowing);
-            await _context.SaveChangesAsync();
+            if (await _context.SaveChangesAsync() > 0)
+            {
+                var borrowedBook = await _context.Books.FindAsync(borrowing.BookId);
+                if (borrowedBook != null)
+                {
+                    borrowedBook.IsAvailable = borrowing.ReturnedDate != null;//book is borrowed already
+                    _context.Update(borrowedBook);
+                    await _context.SaveChangesAsync();
+                }
+            }
         }
 
         public async Task Delete(int id)
         {
             var borrowingToDelete = new BorrowingViewModel() { Id = id };
             _context.Entry(borrowingToDelete).State = EntityState.Deleted;
-            await _context.SaveChangesAsync();
+            if (await _context.SaveChangesAsync() > 0)
+            {
+                var borrowedBook = await _context.Books.FindAsync(borrowingToDelete.BookId);
+                if (borrowedBook != null)
+                {
+                    borrowedBook.IsAvailable = true;//when borrowing is removed by admin, it is equivalent to returning the book
+                    _context.Update(borrowedBook);
+                    await _context.SaveChangesAsync();
+                }
+            }
         }
-
         public async Task Edit(BorrowingViewModel borrowing)
         {
             _context.Update(borrowing);
-            await _context.SaveChangesAsync();
+            if (await _context.SaveChangesAsync() > 0)
+            {
+                var borrowedBook = await _context.Books.FindAsync(borrowing.BookId);
+                if (borrowedBook != null)
+                {
+                    borrowedBook.IsAvailable = borrowing.ReturnedDate != null;//book is returned
+                    _context.Update(borrowedBook);
+                    await _context.SaveChangesAsync();
+                }
+            }
         }
 
         public DbSet<BorrowingViewModel> GetAll()
@@ -37,35 +63,41 @@ namespace BooksManagementSystem.DAL.Borrowing
             return _context.Borrowings;
         }
 
-        public IQueryable<BorrowingViewModel> GetAllBorrowingFullInfo()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="isAdmin"></param>
+        /// <param name="userName">is a unique username that can be only 1 in the system. userName == email address</param>
+        /// <returns></returns>
+        public async Task<IQueryable<BorrowingViewModel>> GetAllBorrowingFullInfo(bool isAdmin, string userName)
         {
 
-            var borrowings = (from b in _context.Borrowings
-                              join book in _context.Books on b.BookId equals book.Id
-                              join user in _context.Users on b.UserId equals user.Id
-                              join author in _context.Authors on book.AuthorId equals author.Id
-                              select new BorrowingViewModel
-                              {
-                                  BorrowedDate = b.BorrowedDate,
-                                  BookViewModel = new BookViewModel
-                                  {
-                                      Title = book.Title,
-                                      AuthorViewModel = author,
-                                      AuthorId = book.AuthorId,
-                                      Category = book.Category,
-                                      Description = book.Description,
-                                      IsAvailable = book.IsAvailable,
-                                      Id = book.Id,
-                                      ISBN = book.ISBN
-                                  },
-                                  BooksManagementSystemUser = user,
-                                  BookId = book.Id,
-                                  Id = b.Id,
-                                  ReturnedDate = b.ReturnedDate,
-                                  UserId = b.UserId
-                              });
+            return await Task.Run(() => (from b in _context.Borrowings
+                                         join book in _context.Books on b.BookId equals book.Id
+                                         join user in _context.Users on b.UserId equals user.Id
+                                         join author in _context.Authors on book.AuthorId equals author.Id
+                                         where (user.UserName == userName || isAdmin == true)
+                                         select new BorrowingViewModel
+                                         {
+                                             BorrowedDate = b.BorrowedDate,
+                                             BookViewModel = new BookViewModel
+                                             {
+                                                 Title = book.Title,
+                                                 AuthorViewModel = author,
+                                                 AuthorId = book.AuthorId,
+                                                 Category = book.Category,
+                                                 Description = book.Description,
+                                                 IsAvailable = book.IsAvailable,
+                                                 Id = book.Id,
+                                                 ISBN = book.ISBN
+                                             },
+                                             BooksManagementSystemUser = user,
+                                             BookId = book.Id,
+                                             Id = b.Id,
+                                             ReturnedDate = b.ReturnedDate,
+                                             UserId = b.UserId
+                                         }));
 
-            return borrowings;
         }
 
         public async Task<BorrowingViewModel> GetDetails(int id)

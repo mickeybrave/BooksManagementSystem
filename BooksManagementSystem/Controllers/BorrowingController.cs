@@ -25,14 +25,14 @@ namespace BooksManagementSystem.Controllers
         }
 
         //   GET: BookController
-        [Authorize(Roles = "Admin")]
-        public ActionResult Index()
+        [Authorize(Roles = "Admin,User")]
+        public async Task<IActionResult> Index()
         {
-            var fullInfo = _borrowingDataRepository.GetAllBorrowingFullInfo();
+            var fullInfo = await _borrowingDataRepository.GetAllBorrowingFullInfo(User.IsInRole("Admin"), User.Identity.Name);
             return View(fullInfo);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> Details(int id)
         {
             var borrowing = await _borrowingDataRepository.GetDetails(id);
@@ -45,21 +45,25 @@ namespace BooksManagementSystem.Controllers
             return View(borrowing);
         }
 
-        private void InitiateBooks()
+        private async Task InitiateBooks(int? bookId)
         {
-            ViewData["Books"] = _booksDataRepository.GetAll().Select(s => new SelectListItem
+            var allAvailableBooks = await _booksDataRepository.GetAllAvailableBooks(bookId);
+            ViewData["Books"] = allAvailableBooks.Select(s => new SelectListItem
             {
                 Text = s.Title,
                 Value = s.Id.ToString()
             });
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> Create()
         {
             await InitiateUsers();
-            InitiateBooks();
-            return View();
+            await InitiateBooks(null);
+            var currentUser = await _accountsRepository.GetUsersByEmailAsync(User.Identity.Name);
+            var borrowing = new BorrowingViewModel { UserId = currentUser.Id };
+            await InitUser(borrowing);
+            return View(borrowing);
         }
 
         private async Task InitiateUsers()
@@ -86,14 +90,18 @@ namespace BooksManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Create([Bind("Id,BookId,UserId,BorrowedDate,ReturnedDate")]
                     BorrowingViewModel borrowing)
         {
             try
             {
+
                 if (ModelState.IsValid)
                 {
+                    var currentUser = await _accountsRepository.GetUsersByEmailAsync(User.Identity.Name);
+                    borrowing.UserId = currentUser.Id;
+
                     await _borrowingDataRepository.Create(borrowing);
                     return RedirectToAction(nameof(Index));
                 }
@@ -104,33 +112,37 @@ namespace BooksManagementSystem.Controllers
                 ModelState.AddModelError("", "Unable to save changes. " +
                     "posible reason is " + ex.Message);
             }
+            await InitiateUsers();
+            await InitiateBooks(borrowing.BookId);
+            await InitUser(borrowing);
             return View(borrowing);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Edit(int id)
         {
-            var book = await _borrowingDataRepository.GetNotTracking(id);
+            var borrowing = await _borrowingDataRepository.GetNotTracking(id);
 
-            if (book == null)
+            if (borrowing == null)
             {
                 return NotFound();
 
             }
-            if (id != book.Id)
+            if (id != borrowing.Id)
             {
                 return NotFound();
             }
 
-
+            await InitBook(borrowing);
+            await InitUser(borrowing);
             await InitiateUsers();
-            InitiateBooks();
-            return View(book);
+            await InitiateBooks(borrowing.BookId);
+            return View(borrowing);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,BookId,UserId,BorrowedDate,ReturnedDate")]
                     BorrowingViewModel borrowing)
         {
@@ -153,6 +165,10 @@ namespace BooksManagementSystem.Controllers
                         "posible reason is " + ex.Message);
                 }
             }
+            await InitBook(borrowing);
+            await InitUser(borrowing);
+            await InitiateUsers();
+            await InitiateBooks(borrowing.BookId);
             return View(borrowing);
         }
 

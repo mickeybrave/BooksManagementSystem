@@ -1,4 +1,5 @@
 ﻿using BooksManagementSystem.Areas.Identity.Data;
+using BooksManagementSystem.Infra;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -29,10 +30,13 @@ namespace BooksManagementSystem.Models
         [HiddenInput(DisplayValue = false)]
         public BooksManagementSystemUser BooksManagementSystemUser { get; set; }
 
+        [CheckDateRange(CanBeNull = false, FieldName = "Borrowed date")]
         [Required]
         [Display(Name = "Borrowed date")]
-        public DateTime BorrowedDate { get; set; }
+        public DateTime? BorrowedDate { get; set; }
 
+        [Display(Name = "Returned date")]
+        [CheckDateRange(CanBeNull = true, FieldName = "Returned date")]
         public DateTime? ReturnedDate { get; set; }
 
         [Display(Name = "Book information")]
@@ -40,8 +44,6 @@ namespace BooksManagementSystem.Models
 
         [Display(Name = "User information")]
         public string UserInfo { get { return BooksManagementSystemUser?.LastName + " " + BooksManagementSystemUser?.Firstname; } }
-
-
 
 
     }

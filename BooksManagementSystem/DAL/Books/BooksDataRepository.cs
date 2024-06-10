@@ -49,24 +49,31 @@ namespace BooksManagementSystem.DAL.Books
                  .FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public IQueryable<BookViewModel> GetAllBookingFullInfo()
+        public IQueryable<BookViewModel> GetAllBooksFullInfo()
         {
 
-            var borrowings = (from book in _context.Books
-                              join author in _context.Authors on book.AuthorId equals author.Id
-                              select new BookViewModel
-                              {
-                                  Title = book.Title,
-                                  AuthorViewModel = author,
-                                  AuthorId = book.AuthorId,
-                                  Category = book.Category,
-                                  Description = book.Description,
-                                  IsAvailable = book.IsAvailable,
-                                  Id = book.Id,
-                                  ISBN = book.ISBN
-                              });
+            return (from book in _context.Books
+                    join author in _context.Authors on book.AuthorId equals author.Id
+                    orderby book.Title
+                    select new BookViewModel
+                    {
+                        Title = book.Title,
+                        AuthorViewModel = author,
+                        AuthorId = book.AuthorId,
+                        Category = book.Category,
+                        Description = book.Description,
+                        IsAvailable = book.IsAvailable,
+                        Id = book.Id,
+                        ISBN = book.ISBN
+                    });
+        }
 
-            return borrowings;
+
+        public async Task<IQueryable<BookViewModel>> GetAllAvailableBooks(int? bookId)
+        {
+            return await Task.Run(() => (from book in _context.Books
+                               where book.IsAvailable || bookId.GetValueOrDefault() == book.Id
+                               select book));
         }
     }
 }

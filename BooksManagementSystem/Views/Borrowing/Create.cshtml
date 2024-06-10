@@ -17,17 +17,13 @@
             </div>
             <div class="form-group">
                 <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class="form-control" asp-items="@(IEnumerable<SelectListItem>)@ViewData["Users"]" id="Users"></select>
+                <select asp-for="UserId" class="form-control" asp-items="@(IEnumerable<SelectListItem>)@ViewData["Users"]" id="Users" hidden></select>
+                <input class="form-control" readonly value="@ViewData["User"]" />
             </div>
             <div class="form-group">
                 <label asp-for="BorrowedDate" class="control-label"></label>
                 <input asp-for="BorrowedDate" class="form-control" />
                 <span asp-validation-for="BorrowedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReturnedDate" class="control-label"></label>
-                <input asp-for="ReturnedDate" class="form-control" />
-                <span asp-validation-for="ReturnedDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

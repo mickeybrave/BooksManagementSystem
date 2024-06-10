@@ -16,14 +16,14 @@ namespace BooksManagementSystem.Controllers
         }
 
         // GET: AuthorController
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public ActionResult Index()
         {
             return View(_repository.GetAll());
         }
 
         // GET: AuthorController/Details/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Details(int id)
         {
             var author = await _repository.GetDetails(id);

@@ -16,6 +16,8 @@ namespace BooksManagementSystem.DAL.Books
 
         Task Delete(int id);
 
-        IQueryable<BookViewModel> GetAllBookingFullInfo();
+        IQueryable<BookViewModel> GetAllBooksFullInfo();
+
+        Task<IQueryable<BookViewModel>> GetAllAvailableBooks(int? bookId);
     }
 }

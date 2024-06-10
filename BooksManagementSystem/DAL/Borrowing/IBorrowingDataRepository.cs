@@ -16,6 +16,6 @@ namespace BooksManagementSystem.DAL.Borrowing
 
         Task Delete(int id);
 
-        IQueryable<BorrowingViewModel> GetAllBorrowingFullInfo();
+        Task<IQueryable<BorrowingViewModel>> GetAllBorrowingFullInfo(bool isAdmin, string userName);
     }
 }
