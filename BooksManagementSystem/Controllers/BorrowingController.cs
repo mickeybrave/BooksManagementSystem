@@ -24,7 +24,6 @@ namespace BooksManagementSystem.Controllers
             _accountsRepository = accountsRepository;
         }
 
-        //   GET: BookController
         [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Index()
         {
