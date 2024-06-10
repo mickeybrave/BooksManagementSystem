@@ -5,14 +5,14 @@ namespace BooksManagementSystem.DAL.Books
 {
     public interface IBooksDataRepository
     {
-        Task Create(BookViewModel author);
+        Task Create(BookViewModel book);
         Task<BookViewModel> GetDetails(int id);
 
         IOrderedQueryable<BookViewModel> GetAll();
 
         Task<BookViewModel?> GetNotTracking(int id);
 
-        Task Edit(BookViewModel author);
+        Task Edit(BookViewModel book);
 
         Task Delete(int id);
 

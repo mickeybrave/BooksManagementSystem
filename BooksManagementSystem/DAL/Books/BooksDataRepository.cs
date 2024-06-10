@@ -13,9 +13,9 @@ namespace BooksManagementSystem.DAL.Books
             _context = context;
         }
 
-        public async Task Create(BookViewModel author)
+        public async Task Create(BookViewModel book)
         {
-            _context.Add(author);
+            _context.Add(book);
             await _context.SaveChangesAsync();
         }
 
@@ -26,10 +26,18 @@ namespace BooksManagementSystem.DAL.Books
             await _context.SaveChangesAsync();
         }
 
-        public async Task Edit(BookViewModel author)
+        public async Task Edit(BookViewModel book)
         {
-            _context.Update(author);
-            await _context.SaveChangesAsync();
+            _context.Update(book);
+            if (await _context.SaveChangesAsync() > 0)
+            {
+                foreach (var borrowing in _context.Borrowings.Where(borrowing => borrowing.BookId == book.Id))
+                {
+                    borrowing.ReturnedDate = DateTime.Now;
+                    _context.Update(borrowing);
+                }
+                await _context.SaveChangesAsync();
+            }
         }
 
         public IOrderedQueryable<BookViewModel> GetAll()
@@ -72,8 +80,8 @@ namespace BooksManagementSystem.DAL.Books
         public async Task<IQueryable<BookViewModel>> GetAllAvailableBooks(int? bookId)
         {
             return await Task.Run(() => (from book in _context.Books
-                               where book.IsAvailable || bookId.GetValueOrDefault() == book.Id
-                               select book));
+                                         where book.IsAvailable || bookId.GetValueOrDefault() == book.Id
+                                         select book));
         }
     }
 }
