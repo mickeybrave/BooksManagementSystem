@@ -4,5 +4,20 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p> Please navigate to the required action by the menu</p>
+    <ul class="navbar-nav flex-grow-1">
+        @if (User.IsInRole("User") || User.IsInRole("Admin"))
+        {
+            <li class="nav-item">
+                <p> You can see all available authors by going to  <a class="nav-link text-dark" asp-area="" asp-controller="Author" asp-action="Index">Authors</a></p>
+            </li>
+            <li class="nav-item">
+                <p> You can see all available books by going to  <a class="nav-link text-dark" asp-area="" asp-controller="Book" asp-action="Index">Books</a></p>
+            </li>
+            <li class="nav-item">
+                <p> You can manage borrowing by clicking on  <a class="nav-link text-dark" asp-area="" asp-controller="Borrowing" asp-action="Index">Borrowing</a></p>
+            </li>
+        }
+    </ul>
+
 </div>
