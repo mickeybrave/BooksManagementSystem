@@ -29,7 +29,7 @@ namespace BooksManagementSystem.Controllers
         public async Task<IActionResult> Index()
         {
             var fullInfo = await _borrowingDataRepository.GetAllBorrowingFullInfo(User.IsInRole("Admin"), User.Identity.Name);
-            if (fullInfo == null || !fullInfo.Any())
+            if (fullInfo == null)
             {
                 return NotFound();
             }
