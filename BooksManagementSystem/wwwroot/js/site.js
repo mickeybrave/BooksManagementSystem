@@ -13,7 +13,5 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(function () {
             notification.style.display = "none";
         }, 5000); // Hide after 5 seconds (adjust as needed)
-    } else {
-        console.warn("Notification element not found!"); // Handle missing element (optional)
     }
 });
